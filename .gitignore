@@ -170,3 +170,4 @@ pip-wheel-metadata/
 .vim/
 images/**
 panda_food_products.csv
+tamimi_food_products.csv
