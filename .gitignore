@@ -168,3 +168,5 @@ prime/
 stage/
 pip-wheel-metadata/
 .vim/
+images/**
+panda_food_products.csv

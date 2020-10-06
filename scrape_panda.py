@@ -1,39 +1,61 @@
-import requests
-from bs4 import BeautifulSoup
-import re
-# collect image, title, price as per yusras request
+import requests # used to get the webpages and images from url
+import re # used to clean price data
+import shutil # used to save image file to disk
+import csv # used to build csv file
+from bs4 import BeautifulSoup # used to scrape site
 
 def main():
 	titles = []
 	images = []
 	prices = []
 	i = 1
+	total_pages = 20
 	try:
-		while i < 18:
+		print("INFO: Starting scrape of Panda food products")
+		while i < total_pages:
 			url = "http://www.panda.com.sa/stores/riyadh/food-products.html?p="+str(i)
-			print(url)
 			r = requests.get(url)
 			soup = BeautifulSoup(r.text, 'html.parser')
 			for product in soup.find_all("div", class_="product-block"):
 				# get image from the thingy
 				image = product.find_all("a", class_="product-zoom")[0].get('href')
-				print(image)
-				images.append(image)
+				filename = "images/"+image.split("/")[-1]
+				img_r = requests.get(image, stream = True)
+				img_r.raw.decode_content = True
+				with open(filename, 'wb') as f:
+					shutil.copyfileobj(r.raw, f)
+				images.append(filename)
 				#get title from the thingy
-				title = product.find_all("h3", class_="product-name")[0].a.contents[0]
-				print(title)
+				title = str(product.find_all("h3", class_="product-name")[0].a.contents[0])
 				titles.append(title)
 				# get price from the thingy 
 				price = product.find_all("span", class_="price")[0].contents[0]
-				match = re.match('([0-9]*.[0-9])')
-				print (match.group(1))
-				print(price)
+				pattern = r"(\d+\.\d{1,2})"
+				price = re.findall(pattern, price)[0]
 				prices.append(price)
+			print("INFO [Scraping Data]: {:.2f}% complete".format((i/total_pages)*100))
 			i+=1
 	except Exception as e:
 		print("ERROR: {}".format(e))
-	data = [titles, images, prices]
-	print(data)
+	print("INFO: Scraping completed")
+	print("INFO: Writing CSV to file...")
+	with open('panda_food_products.csv', 'w', newline='') as csv_file:
+		fieldnames = ['title', 'image', 'price']
+		writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+		writer.writeheader()
+		index = 0
+		while index < len(titles):
+			try:
+				writer.writerow({'image': images[index], 'title': titles[index], 'price': prices[index]})
+				print("INFO [Building CSV]: {:.2f}% complete".format((index/len(titles))*100))
+				index += 1
+			except Exception as e:
+				print("ERROR: {}".format(e))
+				print("INFO: ERROR AT INDEX {}".format(index))
+				print("titles[{}] = {}".format(index, titles[index]))
+				print("images[{}] = {}".format(index, images[index]))
+				print("prices[{}] = {}".format(index, prices[index]))
+
 
 if __name__ == "__main__":
 	main()
