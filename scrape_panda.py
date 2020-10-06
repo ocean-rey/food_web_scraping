@@ -52,10 +52,6 @@ def main():
 			except Exception as e:
 				print("ERROR: {}".format(e))
 				print("INFO: ERROR AT INDEX {}".format(index))
-				print("titles[{}] = {}".format(index, titles[index]))
-				print("images[{}] = {}".format(index, images[index]))
-				print("prices[{}] = {}".format(index, prices[index]))
-
 
 if __name__ == "__main__":
 	main()
