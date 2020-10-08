@@ -9,6 +9,7 @@ verify_ssl = true
 requests = "*"
 bs4 = "*"
 algoliasearch = "*"
+selenium = "*"
 
 [requires]
 python_version = "3.8"
