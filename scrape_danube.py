@@ -19,6 +19,7 @@ def main():
 	prices = []
 	base_url = "https://danube.sa"
 	departments_url = "https://danube.sa/en/departments/"
+	print("[INFO]: Starting scrape of all danube products. (This may take > hour depending on your internet connection)")
 	r = requests.get(departments_url)
 	soup = BeautifulSoup(r.text, 'html.parser')
 	for dept in soup.find_all('div', class_="department-box"):
@@ -53,7 +54,8 @@ def main():
 				except Exception as e:
 					images.append("None")
 			page+=1
-
+	print("[INFO]: Scraping complete.")
+	print("[INFO]: Writing CSV to file...")
 	with open('danube_products.csv', 'w', newline='') as csv_file:
 		fieldnames = ['department', 'image', 'title', 'price']
 		writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
@@ -68,5 +70,6 @@ def main():
 				print("ERROR: {}".format(e))
 				print("INFO: ERROR AT INDEX {}".format(index))
 	browser.close()
+	print("[INFO]: Done")
 if __name__ == "__main__":
 	main()

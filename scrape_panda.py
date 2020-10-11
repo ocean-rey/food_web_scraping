@@ -11,7 +11,7 @@ def main():
 	i = 1
 	total_pages = 20
 	try:
-		print("INFO: Starting scrape of Panda food products")
+		print("[INFO]: Starting scrape of Panda food products")
 		while i < total_pages:
 			url = "http://www.panda.com.sa/stores/riyadh/food-products.html?p="+str(i)
 			r = requests.get(url)
@@ -20,10 +20,10 @@ def main():
 				# get image from the thingy
 				image = product.find_all("a", class_="product-zoom")[0].get('href')
 				filename = "images/"+image.split("/")[-1]
-				img_r = requests.get(image, stream = True)
-				img_r.raw.decode_content = True
+				img_r = requests.get(image)
 				with open(filename, 'wb') as f:
-					shutil.copyfileobj(r.raw, f)
+					for chunk in img_r:
+						f.write(chunk)
 				images.append(filename)
 				#get title from the thingy
 				title = str(product.find_all("h3", class_="product-name")[0].a.contents[0])
@@ -33,12 +33,11 @@ def main():
 				pattern = r"(\d+\.\d{1,2})"
 				price = re.findall(pattern, price)[0]
 				prices.append(price)
-			print("INFO [Scraping Data]: {:.2f}% complete".format((i/total_pages)*100))
 			i+=1
 	except Exception as e:
 		print("ERROR: {}".format(e))
-	print("INFO: Scraping completed")
-	print("INFO: Writing CSV to file...")
+	print("[INFO]: Scraping completed")
+	print("[INFO]: Writing CSV to file...")
 	with open('panda_food_products.csv', 'w', newline='') as csv_file:
 		fieldnames = ['title', 'image', 'price']
 		writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
@@ -47,11 +46,11 @@ def main():
 		while index < len(titles):
 			try:
 				writer.writerow({'image': images[index], 'title': titles[index], 'price': prices[index]})
-				print("INFO [Building CSV]: {:.2f}% complete".format((index/len(titles))*100))
 				index += 1
 			except Exception as e:
 				print("ERROR: {}".format(e))
 				print("INFO: ERROR AT INDEX {}".format(index))
+	print("[INFO] Done.")
 
 if __name__ == "__main__":
 	main()
