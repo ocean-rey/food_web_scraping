@@ -44,10 +44,11 @@ def main():
 				image_url = image_url[1: len(image_url)-1]
 				filename = "images/"+image_url.split("/")[-1]
 				try:
-					img_r = requests.get(image_url, stream = True)
-					img_r.raw.decode_content = True
+					print(image_url)
+					img_r = requests.get(image_url)
 					with open(filename, 'wb') as f:
-						shutil.copyfileobj(r.raw, f)
+						for chunk in img_r:
+							f.write(chunk)
 					images.append(filename)
 				except Exception as e:
 					images.append("None")
