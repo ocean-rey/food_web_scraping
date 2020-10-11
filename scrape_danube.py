@@ -43,11 +43,14 @@ def main():
 				image_url = re.findall(r'\(.*?\)', product.find('div', class_="product-box__image__element").get('style'))[0]
 				image_url = image_url[1: len(image_url)-1]
 				filename = "images/"+image_url.split("/")[-1]
-				img_r = requests.get(image_url, stream = True)
-				img_r.raw.decode_content = True
-				with open(filename, 'wb') as f:
-					shutil.copyfileobj(r.raw, f)
-				images.append(filename)
+				try:
+					img_r = requests.get(image_url, stream = True)
+					img_r.raw.decode_content = True
+					with open(filename, 'wb') as f:
+						shutil.copyfileobj(r.raw, f)
+					images.append(filename)
+				except Exception as e:
+					images.append("None")
 			page+=1
 
 	with open('danube_products.csv', 'w', newline='') as csv_file:
